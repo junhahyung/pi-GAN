@@ -155,6 +155,40 @@ CARLA = {
 }
 
 
+COMPCAR = {
+    0: {'batch_size': 16, 'num_steps': 24, 'img_size': 64, 'batch_split': 4, 'gen_lr': 6e-5, 'disc_lr': 2e-4},
+    int(200e3): {},
+
+    'dataset_path': '/home/nas1_temp/junhahyung/dataset/comprehensive_cars/images/*.jpg',
+    'fov': 10,
+    'ray_start': 0.7, 
+    'ray_end':  1.3,
+    'fade_steps': 10000,
+    'h_stddev': math.pi,
+    'v_stddev': math.pi/4 * 85/90,
+    'h_mean': math.pi*0.5,
+    'v_mean': math.pi/4 * 85/90,
+    'sample_dist': 'spherical_uniform',
+    'topk_interval': 2000,
+    'topk_v': 0.6,
+    'betas': (0, 0.9),
+    'unique_lr': False,
+    'weight_decay': 0,
+    'r1_lambda': 0.2,
+    'latent_dim': 256,
+    'grad_clip': 10,
+    'model': 'SPATIALSIRENBASELINE',
+    'generator': 'ImplicitGenerator3d',
+    'discriminator': 'StridedDiscriminator',
+    'dataset': 'COMPCAR',
+    'clamp_mode': 'relu',
+    'z_dist': 'gaussian',
+    'hierarchical_sample': True,
+    'z_lambda': 0,
+    'pos_lambda': 0,
+    'last_back': False,
+    'eval_last_back': True,
+}
 
 CATS = {
     0: {'batch_size': 28, 'num_steps': 24, 'img_size': 64, 'batch_split': 4, 'gen_lr': 6e-5, 'disc_lr': 2e-4},

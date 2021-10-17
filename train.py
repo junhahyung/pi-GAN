@@ -1,5 +1,6 @@
 """Train pi-GAN. Supports distributed training."""
 
+import wandb
 import argparse
 import os
 import numpy as np
@@ -60,6 +61,7 @@ def z_sampler(shape, device, dist):
 
 def train(rank, world_size, opt):
     torch.manual_seed(0)
+    wandb.init(project="genNeRF")
 
     setup(rank, world_size, opt.port)
     device = torch.device(rank)
@@ -304,6 +306,8 @@ def train(rank, world_size, opt):
                             gen_imgs = generator_ddp.module.staged_forward(fixed_z.to(device),  **copied_metadata)[0]
                     save_image(gen_imgs[:25], os.path.join(opt.output_dir, f"{discriminator.step}_fixed.png"), nrow=5, normalize=True)
 
+                    wandb.log({"images": gen_imgs[:25]})
+
                     with torch.no_grad():
                         with torch.cuda.amp.autocast():
                             copied_metadata = copy.deepcopy(metadata)
@@ -355,6 +359,8 @@ def train(rank, world_size, opt):
                     torch.save(generator_losses, os.path.join(opt.output_dir, 'generator.losses'))
                     torch.save(discriminator_losses, os.path.join(opt.output_dir, 'discriminator.losses'))
 
+                wandb.log({"gen_loss": generator_losses.mean, "disc_loss": discriminator_losses})
+
             if opt.eval_freq > 0 and (discriminator.step + 1) % opt.eval_freq == 0:
                 generated_dir = os.path.join(opt.output_dir, 'evaluation/generated')
 
@@ -395,6 +401,7 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
     print(opt)
+
     os.makedirs(opt.output_dir, exist_ok=True)
     num_gpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
     mp.spawn(train, args=(num_gpus, opt), nprocs=num_gpus, join=True)
